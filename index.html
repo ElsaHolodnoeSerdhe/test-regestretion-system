@@ -3,200 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Система регистрации</title>
+    <title>Сайт с виджетом регистрации</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f5f5f5;
         }
-        .auth-container {
-            background: white;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        h2 {
-            color: #333;
+        
+        header {
+            background-color: #4285f4;
+            color: white;
+            padding: 20px 0;
             text-align: center;
         }
-        input {
+        
+        .main-content {
+            padding: 40px 0;
+            text-align: center;
+        }
+        
+        /* Стили для виджета регистрации */
+        .registration-widget {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .registration-widget h2 {
+            margin-top: 0;
+            color: #4285f4;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
             width: 100%;
             padding: 10px;
-            margin: 8px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
         }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
+        
+        .submit-btn {
+            background-color: #4285f4;
             color: white;
             border: none;
+            padding: 12px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            margin-top: 10px;
+            width: 100%;
         }
-        button.login {
-            background-color: #2196F3;
+        
+        .submit-btn:hover {
+            background-color: #3367d6;
         }
-        .error {
-            color: red;
-            margin-top: 10px;
-            text-align: center;
+        
+        .login-link {
+            margin-top: 20px;
+            display: block;
         }
-        .success {
-            color: green;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .switch-auth {
-            text-align: center;
-            margin-top: 15px;
-        }
-        .switch-auth a {
-            color: #2196F3;
-            text-decoration: none;
+        
+        .widget-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
             cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+        
+        .widget-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .success-message {
+            color: #0f9d58;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .error-message {
+            color: #db4437;
+            margin-top: 10px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <h2 id="form-title">Регистрация</h2>
-        <div id="auth-form">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Пароль (минимум 6 символов)">
-            <button id="submit-btn">Зарегистрироваться</button>
-            <div class="switch-auth">
-                Уже есть аккаунт? <a id="switch-mode">Войти</a>
-            </div>
+    <header>
+        <div class="container">
+            <h1>Добро пожаловать на наш сайт</h1>
         </div>
-        <div id="message" class="error"></div>
+    </header>
+    
+    <div class="main-content">
+        <div class="container">
+            <h2>Основной контент сайта</h2>
+            <p>Здесь может быть любая информация о вашем сайте, продуктах или услугах.</p>
+        </div>
     </div>
-
+    
+    <!-- Виджет регистрации в основном контенте -->
+    <div class="container">
+        <div class="registration-widget">
+            <h2>Регистрация</h2>
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="name">Имя</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Подтвердите пароль</label>
+                    <input type="password" id="confirm-password" name="confirm-password" required>
+                </div>
+                <button type="submit" class="submit-btn">Зарегистрироваться</button>
+                <div class="success-message" id="successMessage">Регистрация прошла успешно!</div>
+                <div class="error-message" id="errorMessage"></div>
+                <a href="#" class="login-link">Уже есть аккаунт? Войти</a>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Плавающий виджет регистрации -->
+    <button class="widget-toggle" id="widgetToggle">+</button>
+    <div class="widget-container" id="widgetContainer">
+        <div class="registration-widget">
+            <h2>Быстрая регистрация</h2>
+            <form id="floatingRegistrationForm">
+                <div class="form-group">
+                    <label for="floating-email">Email</label>
+                    <input type="email" id="floating-email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="floating-password">Пароль</label>
+                    <input type="password" id="floating-password" name="password" required>
+                </div>
+                <button type="submit" class="submit-btn">Зарегистрироваться</button>
+                <div class="success-message" id="floatingSuccessMessage">Регистрация прошла успешно!</div>
+                <div class="error-message" id="floatingErrorMessage"></div>
+            </form>
+        </div>
+    </div>
+    
     <script>
-        // 1. Замените на ваш URL из MockAPI
-        const API_URL = "https://67ea72a734bcedd95f638235.mockapi.io/users";
+        // Обработка основной формы регистрации
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            // Простая валидация
+            if (password !== confirmPassword) {
+                document.getElementById('errorMessage').textContent = 'Пароли не совпадают';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+                return;
+            }
+            
+            // Здесь должна быть логика отправки данных на сервер
+            // Для примера просто показываем сообщение об успехе
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            
+            // Очищаем форму
+            this.reset();
+            
+            console.log('Регистрация:', { name, email, password });
+        });
         
-        // 2. Режим работы (регистрация/вход)
-        let isLoginMode = false;
+        // Обработка плавающей формы регистрации
+        document.getElementById('floatingRegistrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('floating-email').value;
+            const password = document.getElementById('floating-password').value;
+            
+            // Здесь должна быть логика отправки данных на сервер
+            // Для примера просто показываем сообщение об успехе
+            document.getElementById('floatingSuccessMessage').style.display = 'block';
+            document.getElementById('floatingErrorMessage').style.display = 'none';
+            
+            // Очищаем форму
+            this.reset();
+            
+            console.log('Быстрая регистрация:', { email, password });
+        });
         
-        // 3. Получаем элементы страницы
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const submitBtn = document.getElementById('submit-btn');
-        const formTitle = document.getElementById('form-title');
-        const switchMode = document.getElementById('switch-mode');
-        const messageDiv = document.getElementById('message');
-        
-        // 4. Инициализация приложения
-        function init() {
-            submitBtn.addEventListener('click', handleSubmit);
-            switchMode.addEventListener('click', toggleAuthMode);
-            updateUI();
-        }
-        
-        // 5. Переключение между регистрацией и входом
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            updateUI();
-            clearMessage();
-        }
-        
-        // 6. Обновление интерфейса
-        function updateUI() {
-            if (isLoginMode) {
-                formTitle.textContent = "Вход";
-                submitBtn.textContent = "Войти";
-                submitBtn.className = "login";
-                switchMode.textContent = "Зарегистрироваться";
+        // Показать/скрыть плавающий виджет
+        document.getElementById('widgetToggle').addEventListener('click', function() {
+            const widget = document.getElementById('widgetContainer');
+            if (widget.style.display === 'block') {
+                widget.style.display = 'none';
             } else {
-                formTitle.textContent = "Регистрация";
-                submitBtn.textContent = "Зарегистрироваться";
-                submitBtn.className = "";
-                switchMode.textContent = "Войти";
+                widget.style.display = 'block';
             }
-        }
-        
-        // 7. Обработка отправки формы
-        async function handleSubmit() {
-            const email = emailInput.value;
-            const password = passwordInput.value;
-            
-            // Проверка заполнения полей
-            if (!email || !password) {
-                showMessage("Заполните все поля", false);
-                return;
-            }
-            
-            // Проверка длины пароля
-            if (password.length < 6) {
-                showMessage("Пароль должен содержать минимум 6 символов", false);
-                return;
-            }
-            
-            try {
-                if (isLoginMode) {
-                    // Логика входа
-                    const response = await fetch(API_URL);
-                    const users = await response.json();
-                    
-                    // Поиск пользователя
-                    const user = users.find(u => u.email === email && u.password === password);
-                    if (user) {
-                        showMessage("Вход выполнен успешно! Перенаправляем...", true);
-                        // Здесь обычно делают перенаправление
-                    } else {
-                        showMessage("Неверный email или пароль", false);
-                    }
-                } else {
-                    // Логика регистрации
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            email,
-                            password,
-                            createdAt: new Date().toISOString()
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        showMessage("Регистрация прошла успешно! Теперь вы можете войти.", true);
-                        toggleAuthMode(); // Переключаем на вход после регистрации
-                    } else {
-                        const errorData = await response.json();
-                        showMessage(`Ошибка регистрации: ${errorData.message || response.status}`, false);
-                        console.error("Ошибка API:", errorData);
-                    }
-                }
-            } catch (error) {
-                showMessage("Ошибка сети. Проверьте консоль для подробностей.", false);
-                console.error("Ошибка:", error);
-            }
-        }
-        
-        // 8. Показать сообщение
-        function showMessage(message, isSuccess) {
-            messageDiv.textContent = message;
-            messageDiv.className = isSuccess ? "success" : "error";
-        }
-        
-        // 9. Очистить сообщение
-        function clearMessage() {
-            messageDiv.textContent = "";
-            messageDiv.className = "error";
-        }
-        
-        // Запускаем приложение
-        init();
+        });
     </script>
 </body>
 </html>
