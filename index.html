@@ -1,127 +1,55 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Авторизация</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            box-sizing: border-box;
-        }
-        button {
-            background-color: #3cb371;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            width: 100%;
-        }
-        #auth-section, #user-section {
-            margin-top: 30px;
-        }
-        #user-section {
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <h1>Мой Сайт</h1>
+<script>
+  // Инициализация с проверкой
+  try {
+    const supabase = supabase.createClient(
+      'https://uijclmisfelsdhjzqyhe.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg'
+    );
+    window.supabase = supabase; // Делаем глобальным для отладки
+    console.log("Supabase инициализирован");
+  } catch (e) {
+    console.error("Ошибка инициализации Supabase:", e);
+  }
 
-    <div id="auth-section">
-        <h2>Вход/Регистрация</h2>
-        <div class="form-group">
-            <input type="email" id="email" placeholder="Ваш email">
-        </div>
-        <div class="form-group">
-            <input type="password" id="password" placeholder="Пароль (от 6 символов)">
-        </div>
-        <button onclick="handleLogin()">Войти</button>
-        <button onclick="handleRegister()">Зарегистрироваться</button>
-    </div>
+  async function handleRegister() {
+    console.clear(); // Очищаем консоль для новых логов
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) {
+      alert("Заполните все поля!");
+      return;
+    }
 
-    <div id="user-section">
-        <h2>Добро пожаловать!</h2>
-        <p>Вы вошли как: <span id="user-email"></span></p>
-        <button onclick="handleLogout()">Выйти</button>
-    </div>
-
-    <script>
-        // Настройки Supabase (замените на свои!)
-        const supabase = supabase.createClient(
-            'https://uijclmisfelsdhjzqyhe.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg'
-        );
-
-        // Проверяем авторизацию при загрузке
-        checkAuth();
-
-        async function checkAuth() {
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            if (user) {
-                // Пользователь авторизован
-                document.getElementById('auth-section').style.display = 'none';
-                document.getElementById('user-section').style.display = 'block';
-                document.getElementById('user-email').textContent = user.email;
-            }
+    console.log("Отправка запроса...");
+    
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.href
         }
+      });
 
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password
-            });
-
-            if (error) {
-                alert('Ошибка входа: ' + error.message);
-            } else {
-                checkAuth(); // Обновляем интерфейс
-            }
-        }
-
-        async function handleRegister() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            const { error } = await supabase.auth.signUp({
-                email,
-                password
-            });
-
-            if (error) {
-                alert('Ошибка регистрации: ' + error.message);
-            } else {
-                alert('Регистрация успешна! Проверьте почту для подтверждения.');
-            }
-        }
-
-        async function handleLogout() {
-            const { error } = await supabase.auth.signOut();
-            
-            if (error) {
-                alert('Ошибка выхода: ' + error.message);
-            } else {
-                document.getElementById('auth-section').style.display = 'block';
-                document.getElementById('user-section').style.display = 'none';
-            }
-        }
-    </script>
-</body>
-</html>
+      console.log("Полный ответ:", { data, error });
+      
+      if (error) {
+        throw error;
+      }
+      
+      alert('Проверьте почту! Ссылка для подтверждения отправлена.');
+      console.log("User:", data.user);
+      console.log("Session:", data.session);
+      
+    } catch (error) {
+      console.error("Детали ошибки:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
+      alert(`Ошибка: ${error.message}`);
+    }
+  }
+</script>
