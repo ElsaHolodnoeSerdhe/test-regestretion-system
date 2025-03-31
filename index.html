@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Auth System</title>
+    <title>Система регистрации</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -67,26 +67,26 @@
 </head>
 <body>
     <div class="auth-container">
-        <h2 id="form-title">Register</h2>
+        <h2 id="form-title">Регистрация</h2>
         <div id="auth-form">
             <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Password (min 6 characters)">
-            <button id="submit-btn">Register</button>
+            <input type="password" id="password" placeholder="Пароль (минимум 6 символов)">
+            <button id="submit-btn">Зарегистрироваться</button>
             <div class="switch-auth">
-                Already have an account? <a id="switch-mode">Login instead</a>
+                Уже есть аккаунт? <a id="switch-mode">Войти</a>
             </div>
         </div>
         <div id="message" class="error"></div>
     </div>
 
     <script>
-        // 1. Replace with your MockAPI URL (e.g., "https://6624d6f04435640...mockapi.io/users")
+        // 1. Замените на ваш URL из MockAPI
         const API_URL = "https://67ea72a734bcedd95f638235.mockapi.io/users";
         
-        // 2. Current mode (register/login)
+        // 2. Режим работы (регистрация/вход)
         let isLoginMode = false;
         
-        // 3. DOM elements
+        // 3. Получаем элементы страницы
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
         const submitBtn = document.getElementById('submit-btn');
@@ -94,64 +94,68 @@
         const switchMode = document.getElementById('switch-mode');
         const messageDiv = document.getElementById('message');
         
-        // 4. Initialize
+        // 4. Инициализация приложения
         function init() {
             submitBtn.addEventListener('click', handleSubmit);
             switchMode.addEventListener('click', toggleAuthMode);
             updateUI();
         }
         
-        // 5. Toggle between register/login
+        // 5. Переключение между регистрацией и входом
         function toggleAuthMode() {
             isLoginMode = !isLoginMode;
             updateUI();
             clearMessage();
         }
         
-        // 6. Update UI based on mode
+        // 6. Обновление интерфейса
         function updateUI() {
             if (isLoginMode) {
-                formTitle.textContent = "Login";
-                submitBtn.textContent = "Login";
-                switchMode.textContent = "Register instead";
+                formTitle.textContent = "Вход";
+                submitBtn.textContent = "Войти";
+                submitBtn.className = "login";
+                switchMode.textContent = "Зарегистрироваться";
             } else {
-                formTitle.textContent = "Register";
-                submitBtn.textContent = "Register";
-                switchMode.textContent = "Login instead";
+                formTitle.textContent = "Регистрация";
+                submitBtn.textContent = "Зарегистрироваться";
+                submitBtn.className = "";
+                switchMode.textContent = "Войти";
             }
         }
         
-        // 7. Handle form submission
+        // 7. Обработка отправки формы
         async function handleSubmit() {
             const email = emailInput.value;
             const password = passwordInput.value;
             
-            // Basic validation
+            // Проверка заполнения полей
             if (!email || !password) {
-                showMessage("Please fill in all fields", false);
+                showMessage("Заполните все поля", false);
                 return;
             }
             
+            // Проверка длины пароля
             if (password.length < 6) {
-                showMessage("Password must be at least 6 characters", false);
+                showMessage("Пароль должен содержать минимум 6 символов", false);
                 return;
             }
             
             try {
                 if (isLoginMode) {
-                    // Login logic
+                    // Логика входа
                     const response = await fetch(API_URL);
                     const users = await response.json();
                     
+                    // Поиск пользователя
                     const user = users.find(u => u.email === email && u.password === password);
                     if (user) {
-                        showMessage("Login successful! Redirecting...", true);
-                        // Here you would typically redirect to a dashboard
+                        showMessage("Вход выполнен успешно! Перенаправляем...", true);
+                        // Здесь обычно делают перенаправление
                     } else {
-                        showMessage("Invalid email or password", false);
+                        showMessage("Неверный email или пароль", false);
                     }
                 } else {
-                    // Registration logic
+                    // Логика регистрации
                     const response = await fetch(API_URL, {
                         method: 'POST',
                         headers: {
@@ -159,36 +163,39 @@
                         },
                         body: JSON.stringify({
                             email,
-                            password
+                            password,
+                            createdAt: new Date().toISOString()
                         })
                     });
                     
                     if (response.ok) {
-                        showMessage("Registration successful! You can now login.", true);
-                        toggleAuthMode(); // Switch to login after registration
+                        showMessage("Регистрация прошла успешно! Теперь вы можете войти.", true);
+                        toggleAuthMode(); // Переключаем на вход после регистрации
                     } else {
                         const errorData = await response.json();
-                        showMessage(errorData.message || "Registration failed", false);
+                        showMessage(`Ошибка регистрации: ${errorData.message || response.status}`, false);
+                        console.error("Ошибка API:", errorData);
                     }
                 }
             } catch (error) {
-                showMessage("Network error. Please try again.", false);
-                console.error("Error:", error);
+                showMessage("Ошибка сети. Проверьте консоль для подробностей.", false);
+                console.error("Ошибка:", error);
             }
         }
         
-        // 8. Helper functions
+        // 8. Показать сообщение
         function showMessage(message, isSuccess) {
             messageDiv.textContent = message;
             messageDiv.className = isSuccess ? "success" : "error";
         }
         
+        // 9. Очистить сообщение
         function clearMessage() {
             messageDiv.textContent = "";
             messageDiv.className = "error";
         }
         
-        // Start the app
+        // Запускаем приложение
         init();
     </script>
 </body>
