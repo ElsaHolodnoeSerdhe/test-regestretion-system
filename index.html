@@ -16,27 +16,33 @@
   
   <input type="email" id="email" placeholder="Ваш email">
   <input type="password" id="password" placeholder="Пароль (от 6 символов)">
-  <button onclick="register()">Зарегистрироваться</button>
-  <button onclick="login()">Войти</button>
+  <button id="register-btn">Зарегистрироваться</button>
+  <button id="login-btn">Войти</button>
   
   <div id="message" class="error"></div>
   
   <script>
-    // Инициализация Supabase (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!)
-    const supabaseUrl = 'https://uijclmisfelsdhjzqyhe.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg';
+    // 1. Инициализация Supabase (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!)
+    const supabaseUrl = 'https://ваш-проект.supabase.co';
+    const supabaseKey = 'ваш-anon-key';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
     
-    // Проверяем подключение
+    // 2. Проверяем подключение
     console.log("Supabase подключен:", supabase);
     
+    // 3. Элементы страницы
+    const registerBtn = document.getElementById('register-btn');
+    const loginBtn = document.getElementById('login-btn');
+    
+    // 4. Функция показа сообщений
     function showMessage(text, isSuccess) {
       const msg = document.getElementById('message');
       msg.textContent = text;
       msg.className = isSuccess ? 'success' : 'error';
     }
     
-    async function register() {
+    // 5. Регистрация
+    registerBtn.addEventListener('click', async () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       
@@ -65,9 +71,10 @@
         showMessage("Ошибка: " + error.message, false);
         console.error(error);
       }
-    }
+    });
     
-    async function login() {
+    // 6. Вход
+    loginBtn.addEventListener('click', async () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       
@@ -86,7 +93,7 @@
         showMessage("Ошибка входа: " + error.message, false);
         console.error(error);
       }
-    }
+    });
   </script>
 </body>
 </html>
