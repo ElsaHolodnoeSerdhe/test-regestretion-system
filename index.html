@@ -1,302 +1,92 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Профессиональный SaaS</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <style>
-        .fade-enter-active, .fade-leave-active {
-            transition: opacity 0.3s;
-        }
-        .fade-enter, .fade-leave-to {
-            opacity: 0;
-        }
-        .loader {
-            border-top-color: #3B82F6;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+  <title>Рабочая регистрация</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial; max-width: 400px; margin: 0 auto; padding: 20px; }
+    input, button { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
+    button { background: #3b82f6; color: white; border: none; cursor: pointer; }
+    .error { color: red; margin: 10px 0; }
+    .success { color: green; margin: 10px 0; }
+  </style>
 </head>
-<body class="bg-gray-50">
-    <div id="app" class="min-h-screen flex flex-col">
-        <!-- Навигация -->
-        <nav class="bg-white shadow-sm">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16">
-                    <div class="flex items-center">
-                        <span class="text-xl font-bold text-blue-600">MySaaS</span>
-                    </div>
-                    <div id="nav-auth" class="hidden items-center space-x-4">
-                        <button onclick="showAuthModal('login')" class="px-3 py-1 text-sm text-blue-600">Вход</button>
-                        <button onclick="showAuthModal('register')" class="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">Регистрация</button>
-                    </div>
-                    <div id="nav-user" class="hidden items-center space-x-4">
-                        <span id="user-email" class="text-sm text-gray-700"></span>
-                        <button onclick="logout()" class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700">Выйти</button>
-                    </div>
-                </div>
-            </div>
-        </nav>
-
-        <!-- Основной контент -->
-        <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div id="guest-content" class="text-center py-12">
-                <h1 class="text-4xl font-bold text-gray-900 mb-6 animate__animated animate__fadeIn">Добро пожаловать!</h1>
-                <p class="text-xl text-gray-600 mb-8">Зарегистрируйтесь, чтобы получить доступ ко всем возможностям</p>
-                <button onclick="showAuthModal('register')" class="px-6 py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition duration-300 animate__animated animate__pulse animate__infinite">Начать бесплатно</button>
-            </div>
-
-            <div id="user-content" class="hidden">
-                <div class="bg-white shadow rounded-lg p-6 animate__animated animate__fadeIn">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Ваш профиль</h2>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Email</label>
-                            <p id="profile-email" class="mt-1 text-sm text-gray-900"></p>
-                        </div>
-                        <div>
-                            <label for="username" class="block text-sm font-medium text-gray-700">Имя пользователя</label>
-                            <input type="text" id="username" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        </div>
-                        <button onclick="updateProfile()" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700">Сохранить</button>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- Модальное окно авторизации -->
-        <div id="auth-modal" class="fixed z-10 inset-0 overflow-y-auto hidden">
-            <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 transition-opacity" aria-hidden="true">
-                    <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-                </div>
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-sm sm:w-full sm:p-6">
-                    <div>
-                        <h3 id="auth-modal-title" class="text-lg leading-6 font-medium text-gray-900 text-center"></h3>
-                        <div class="mt-6">
-                            <form>
-                                <div>
-                                    <label for="auth-email" class="block text-sm font-medium text-gray-700">Email</label>
-                                    <input type="email" id="auth-email" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                </div>
-                                <div class="mt-4">
-                                    <label for="auth-password" class="block text-sm font-medium text-gray-700">Пароль</label>
-                                    <input type="password" id="auth-password" required minlength="6" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                                </div>
-                                <div id="auth-error" class="mt-4 text-sm text-red-600 hidden"></div>
-                                <div class="mt-6">
-                                    <button id="auth-submit" type="button" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <span id="auth-submit-text"></span>
-                                        <div id="auth-loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-5 w-5 ml-2 hidden"></div>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="mt-4 text-center">
-                        <button type="button" onclick="hideAuthModal()" class="text-sm text-blue-600 hover:text-blue-500">Закрыть</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Конфигурация Supabase
-        const supabaseUrl = 'https://uijclmisfelsdhjzqyhe.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg';
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-        // Состояние приложения
-        let authModalType = '';
-        let currentUser = null;
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', async () => {
-            checkAuth();
-            
-            // Обработчики событий
-            document.getElementById('auth-submit').addEventListener('click', handleAuthSubmit);
+<body>
+  <h2>Тест регистрации</h2>
+  
+  <input type="email" id="email" placeholder="Ваш email">
+  <input type="password" id="password" placeholder="Пароль (от 6 символов)">
+  <button onclick="register()">Зарегистрироваться</button>
+  <button onclick="login()">Войти</button>
+  
+  <div id="message" class="error"></div>
+  
+  <script>
+    // Инициализация Supabase (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!)
+    const supabaseUrl = 'https://uijclmisfelsdhjzqyhe.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // Проверяем подключение
+    console.log("Supabase подключен:", supabase);
+    
+    function showMessage(text, isSuccess) {
+      const msg = document.getElementById('message');
+      msg.textContent = text;
+      msg.className = isSuccess ? 'success' : 'error';
+    }
+    
+    async function register() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (!email || !password) {
+        showMessage("Заполните все поля", false);
+        return;
+      }
+      
+      if (password.length < 6) {
+        showMessage("Пароль должен быть от 6 символов", false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password
         });
-
-        // Проверка состояния аутентификации
-        async function checkAuth() {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            
-            if (user) {
-                currentUser = user;
-                showUserUI();
-                loadUserProfile();
-            } else {
-                showGuestUI();
-            }
-        }
-
-        // Показать интерфейс для гостей
-        function showGuestUI() {
-            document.getElementById('nav-auth').classList.remove('hidden');
-            document.getElementById('nav-user').classList.add('hidden');
-            document.getElementById('guest-content').classList.remove('hidden');
-            document.getElementById('user-content').classList.add('hidden');
-        }
-
-        // Показать интерфейс для авторизованных
-        function showUserUI() {
-            document.getElementById('nav-auth').classList.add('hidden');
-            document.getElementById('nav-user').classList.remove('hidden');
-            document.getElementById('guest-content').classList.add('hidden');
-            document.getElementById('user-content').classList.remove('hidden');
-            
-            if (currentUser) {
-                document.getElementById('user-email').textContent = currentUser.email;
-                document.getElementById('profile-email').textContent = currentUser.email;
-            }
-        }
-
-        // Показать модальное окно авторизации
-        function showAuthModal(type) {
-            authModalType = type;
-            const modal = document.getElementById('auth-modal');
-            const title = document.getElementById('auth-modal-title');
-            const submitText = document.getElementById('auth-submit-text');
-            
-            if (type === 'login') {
-                title.textContent = 'Вход в аккаунт';
-                submitText.textContent = 'Войти';
-            } else {
-                title.textContent = 'Создание аккаунта';
-                submitText.textContent = 'Зарегистрироваться';
-            }
-            
-            modal.classList.remove('hidden');
-            document.getElementById('auth-error').classList.add('hidden');
-        }
-
-        // Скрыть модальное окно
-        function hideAuthModal() {
-            document.getElementById('auth-modal').classList.add('hidden');
-            document.getElementById('auth-email').value = '';
-            document.getElementById('auth-password').value = '';
-        }
-
-        // Обработка отправки формы
-        async function handleAuthSubmit() {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const errorElement = document.getElementById('auth-error');
-            const submitBtn = document.getElementById('auth-submit');
-            const loader = document.getElementById('auth-loader');
-            
-            // Валидация
-            if (!email || !password) {
-                errorElement.textContent = 'Заполните все поля';
-                errorElement.classList.remove('hidden');
-                return;
-            }
-            
-            if (password.length < 6) {
-                errorElement.textContent = 'Пароль должен содержать минимум 6 символов';
-                errorElement.classList.remove('hidden');
-                return;
-            }
-            
-            // Показать загрузку
-            submitBtn.disabled = true;
-            loader.classList.remove('hidden');
-            errorElement.classList.add('hidden');
-            
-            try {
-                let user, error;
-                
-                if (authModalType === 'login') {
-                    ({ data: { user }, error } = await supabase.auth.signInWithPassword({
-                        email,
-                        password
-                    }));
-                } else {
-                    ({ data: { user }, error } = await supabase.auth.signUp({
-                        email,
-                        password,
-                        options: {
-                            emailRedirectTo: window.location.href
-                        }
-                    }));
-                }
-                
-                if (error) throw error;
-                
-                if (authModalType === 'register') {
-                    alert('Проверьте вашу почту для подтверждения регистрации!');
-                }
-                
-                currentUser = user;
-                hideAuthModal();
-                checkAuth();
-                
-            } catch (error) {
-                errorElement.textContent = error.message;
-                errorElement.classList.remove('hidden');
-                console.error('Auth error:', error);
-            } finally {
-                submitBtn.disabled = false;
-                loader.classList.add('hidden');
-            }
-        }
-
-        // Выход из системы
-        async function logout() {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Logout error:', error);
-            } else {
-                currentUser = null;
-                showGuestUI();
-            }
-        }
-
-        // Загрузка профиля пользователя
-        async function loadUserProfile() {
-            if (!currentUser) return;
-            
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('username')
-                .eq('id', currentUser.id)
-                .single();
-            
-            if (!error && data) {
-                document.getElementById('username').value = data.username || '';
-            }
-        }
-
-        // Обновление профиля
-        async function updateProfile() {
-            if (!currentUser) return;
-            
-            const username = document.getElementById('username').value;
-            
-            const { error } = await supabase
-                .from('profiles')
-                .upsert({
-                    id: currentUser.id,
-                    username,
-                    updated_at: new Date()
-                });
-            
-            if (error) {
-                alert('Ошибка при сохранении: ' + error.message);
-            } else {
-                alert('Профиль успешно обновлен!');
-            }
-        }
-    </script>
+        
+        if (error) throw error;
+        
+        showMessage("Регистрация успешна! Проверьте почту", true);
+        console.log("Пользователь:", data.user);
+        
+      } catch (error) {
+        showMessage("Ошибка: " + error.message, false);
+        console.error(error);
+      }
+    }
+    
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        
+        if (error) throw error;
+        
+        showMessage("Вход выполнен! ID: " + data.user.id, true);
+        console.log("Сессия:", data.session);
+        
+      } catch (error) {
+        showMessage("Ошибка входа: " + error.message, false);
+        console.error(error);
+      }
+    }
+  </script>
 </body>
 </html>
