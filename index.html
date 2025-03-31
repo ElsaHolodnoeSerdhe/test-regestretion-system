@@ -1,99 +1,195 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Рабочая регистрация</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    body { font-family: Arial; max-width: 400px; margin: 0 auto; padding: 20px; }
-    input, button { width: 100%; padding: 10px; margin: 5px 0; box-sizing: border-box; }
-    button { background: #3b82f6; color: white; border: none; cursor: pointer; }
-    .error { color: red; margin: 10px 0; }
-    .success { color: green; margin: 10px 0; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Auth System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .auth-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            text-align: center;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button.login {
+            background-color: #2196F3;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .switch-auth {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .switch-auth a {
+            color: #2196F3;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <h2>Тест регистрации</h2>
-  
-  <input type="email" id="email" placeholder="Ваш email">
-  <input type="password" id="password" placeholder="Пароль (от 6 символов)">
-  <button id="register-btn">Зарегистрироваться</button>
-  <button id="login-btn">Войти</button>
-  
-  <div id="message" class="error"></div>
-  
-  <script>
-    // 1. Инициализация Supabase (ЗАМЕНИТЕ НА СВОИ ДАННЫЕ!)
-    const supabaseUrl = 'https://uijclmisfelsdhjzqyhe.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-    
-    // 2. Проверяем подключение
-    console.log("Supabase подключен:", supabase);
-    
-    // 3. Элементы страницы
-    const registerBtn = document.getElementById('register-btn');
-    const loginBtn = document.getElementById('login-btn');
-    
-    // 4. Функция показа сообщений
-    function showMessage(text, isSuccess) {
-      const msg = document.getElementById('message');
-      msg.textContent = text;
-      msg.className = isSuccess ? 'success' : 'error';
-    }
-    
-    // 5. Регистрация
-    registerBtn.addEventListener('click', async () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email || !password) {
-        showMessage("Заполните все поля", false);
-        return;
-      }
-      
-      if (password.length < 6) {
-        showMessage("Пароль должен быть от 6 символов", false);
-        return;
-      }
-      
-      try {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password
-        });
+    <div class="auth-container">
+        <h2 id="form-title">Register</h2>
+        <div id="auth-form">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password (min 6 characters)">
+            <button id="submit-btn">Register</button>
+            <div class="switch-auth">
+                Already have an account? <a id="switch-mode">Login instead</a>
+            </div>
+        </div>
+        <div id="message" class="error"></div>
+    </div>
+
+    <script>
+        // 1. Replace with your MockAPI URL (e.g., "https://6624d6f04435640...mockapi.io/users")
+        const API_URL = "YOUR_MOCKAPI_URL_HERE/users";
         
-        if (error) throw error;
+        // 2. Current mode (register/login)
+        let isLoginMode = false;
         
-        showMessage("Регистрация успешна! Проверьте почту", true);
-        console.log("Пользователь:", data.user);
+        // 3. DOM elements
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submit-btn');
+        const formTitle = document.getElementById('form-title');
+        const switchMode = document.getElementById('switch-mode');
+        const messageDiv = document.getElementById('message');
         
-      } catch (error) {
-        showMessage("Ошибка: " + error.message, false);
-        console.error(error);
-      }
-    });
-    
-    // 6. Вход
-    loginBtn.addEventListener('click', async () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
+        // 4. Initialize
+        function init() {
+            submitBtn.addEventListener('click', handleSubmit);
+            switchMode.addEventListener('click', toggleAuthMode);
+            updateUI();
+        }
         
-        if (error) throw error;
+        // 5. Toggle between register/login
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            updateUI();
+            clearMessage();
+        }
         
-        showMessage("Вход выполнен! ID: " + data.user.id, true);
-        console.log("Сессия:", data.session);
+        // 6. Update UI based on mode
+        function updateUI() {
+            if (isLoginMode) {
+                formTitle.textContent = "Login";
+                submitBtn.textContent = "Login";
+                switchMode.textContent = "Register instead";
+            } else {
+                formTitle.textContent = "Register";
+                submitBtn.textContent = "Register";
+                switchMode.textContent = "Login instead";
+            }
+        }
         
-      } catch (error) {
-        showMessage("Ошибка входа: " + error.message, false);
-        console.error(error);
-      }
-    });
-  </script>
+        // 7. Handle form submission
+        async function handleSubmit() {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            
+            // Basic validation
+            if (!email || !password) {
+                showMessage("Please fill in all fields", false);
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage("Password must be at least 6 characters", false);
+                return;
+            }
+            
+            try {
+                if (isLoginMode) {
+                    // Login logic
+                    const response = await fetch(API_URL);
+                    const users = await response.json();
+                    
+                    const user = users.find(u => u.email === email && u.password === password);
+                    if (user) {
+                        showMessage("Login successful! Redirecting...", true);
+                        // Here you would typically redirect to a dashboard
+                    } else {
+                        showMessage("Invalid email or password", false);
+                    }
+                } else {
+                    // Registration logic
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email,
+                            password
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        showMessage("Registration successful! You can now login.", true);
+                        toggleAuthMode(); // Switch to login after registration
+                    } else {
+                        const errorData = await response.json();
+                        showMessage(errorData.message || "Registration failed", false);
+                    }
+                }
+            } catch (error) {
+                showMessage("Network error. Please try again.", false);
+                console.error("Error:", error);
+            }
+        }
+        
+        // 8. Helper functions
+        function showMessage(message, isSuccess) {
+            messageDiv.textContent = message;
+            messageDiv.className = isSuccess ? "success" : "error";
+        }
+        
+        function clearMessage() {
+            messageDiv.textContent = "";
+            messageDiv.className = "error";
+        }
+        
+        // Start the app
+        init();
+    </script>
 </body>
 </html>
