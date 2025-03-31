@@ -1,55 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-  <title>Регистрация с Firebase</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px; }
+        input, button { width: 100%; padding: 10px; margin: 8px 0; box-sizing: border-box; }
+        button { background-color: #3cb371; color: white; border: none; cursor: pointer; }
+        .auth-container { display: none; }
+        .user-info { margin-top: 20px; }
+    </style>
 </head>
 <body>
-  <div id="auth-container">
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Пароль">
-    <button onclick="register()">Зарегистрироваться</button>
-    <button onclick="login()">Войти</button>
-  </div>
+    <div id="auth-container" class="auth-container">
+        <h2>Регистрация/Вход</h2>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Пароль (мин. 6 символов)">
+        <button onclick="handleAuth()">Зарегистрироваться</button>
+        <button onclick="handleLogin()">Войти</button>
+    </div>
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_BUCKET.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-    
-    firebase.initializeApp(firebaseConfig);
-    
-    function register() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert("Регистрация успешна!");
-        })
-        .catch((error) => {
-          alert("Ошибка: " + error.message);
-        });
-    }
-    
-    function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          alert("Вход выполнен!");
-        })
-        .catch((error) => {
-          alert("Ошибка: " + error.message);
-        });
-    }
-  </script>
+    <div id="user-container" class="user-info">
+        <h2>Профиль</h2>
+        <p id="user-email"></p>
+        <button onclick="handleLogout()">Выйти</button>
+    </div>
+
+    <script>
+        // Замените эти значения на свои из Supabase Dashboard
+        const SUPABASE_URL = 'https://uijclmisfelsdhjzqyhe.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpamNsbWlzZmVsc2RoanpxeWhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM0MTIzMjksImV4cCI6MjA1ODk4ODMyOX0.ZExuQLQRWYvc1cDNF2xGN8kzRUpbBmzDPKT5BSgXtUg';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Проверка авторизации при загрузке
+        checkAuth();
+
+        async function checkAuth() {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (user) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('user-container').style.display = 'block';
+                document.getElementById('user-email').textContent = user.email;
+            } else {
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('user-container').style.display = 'none';
+            }
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password
+            });
+
+            if (error) {
+                alert(`Ошибка: ${error.message}`);
+            } else {
+                alert('Проверьте вашу почту для подтверждения!');
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password
+            });
+
+            if (error) {
+                alert(`Ошибка входа: ${error.message}`);
+            } else {
+                alert('Вход выполнен!');
+                checkAuth();
+            }
+        }
+
+        async function handleLogout() {
+            const { error } = await supabase.auth.signOut();
+            if (error) {
+                alert(`Ошибка выхода: ${error.message}`);
+            } else {
+                checkAuth();
+            }
+        }
+    </script>
 </body>
 </html>
